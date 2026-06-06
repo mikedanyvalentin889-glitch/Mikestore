@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIKESTORE — Dark Luxury</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #080808;
+      --deep: #0f0f0f;
+      --surface: #141414;
+      --border: #222222;
+      --gold: #c9a84c;
+      --gold-light: #e8c97e;
+      --white: #f5f0e8;
+      --muted: #888;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-serif: 'Cormorant Garamond', serif;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CUSTOM CURSOR ── */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: all 0.25s ease;
+      opacity: 0.6;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4rem;
+      height: 72px;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(201,168,76,0.12);
+      animation: fadeDown 0.8s ease both;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      letter-spacing: 0.25em;
+      color: var(--white);
+      text-decoration: none;
+      position: relative;
+    }
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.3s;
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .nav-cart {
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--white);
+      text-decoration: none;
+      border: 1px solid var(--gold);
+      padding: 0.5rem 1.2rem;
+      transition: all 0.3s;
+    }
+    .nav-cart:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding: 0 4rem;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 70% 50%, rgba(201,168,76,0.07) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 50% at 20% 80%, rgba(201,168,76,0.04) 0%, transparent 55%),
+        var(--black);
+    }
+
+    .hero-line-v {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.2) 30%, rgba(201,168,76,0.2) 70%, transparent);
+    }
+    .hero-line-v:nth-child(1) { left: 33%; }
+    .hero-line-v:nth-child(2) { left: 66%; }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      animation: heroIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+
+    @keyframes heroIn {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 40px; height: 1px;
+      background: var(--gold);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(5rem, 12vw, 10rem);
+      line-height: 0.88;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 0.2em;
+    }
+    .hero-title .gold { color: var(--gold); }
+
+    .hero-subtitle {
+      font-family: var(--font-serif);
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-weight: 300;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      margin-top: 1.5rem;
+      margin-bottom: 3rem;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--black);
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 1rem 2.4rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--gold-light);
+      transform: translateX(-100%);
+      transition: transform 0.4s ease;
+    }
+    .btn-primary:hover::before { transform: translateX(0); }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    .btn-ghost {
+      display: inline-block;
+      color: var(--white);
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: border-color 0.3s, color 0.3s;
+    }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+    .hero-badge {
+      position: absolute;
+      right: 6rem; bottom: 8rem;
+      width: 110px; height: 110px;
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: spin 18s linear infinite;
+    }
+    .hero-badge-inner {
+      font-family: var(--font-serif);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem; left: 4rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .scroll-line {
+      width: 50px; height: 1px;
+      background: var(--gold);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--white);
+      animation: scanline 2s ease-in-out infinite;
+    }
+    @keyframes scanline {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      background: var(--gold);
+      padding: 0.75rem 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-flex;
+      gap: 0;
+      animation: marquee 18s linear infinite;
+    }
+    .marquee-track span {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      letter-spacing: 0.3em;
+      color: var(--black);
+      padding: 0 2rem;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ── SECTION HEADER ── */
+    .section {
+      padding: 6rem 4rem;
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 3.5rem;
+    }
+    .section-tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-tag::before {
+      content: '';
+      width: 24px; height: 1px;
+      background: var(--gold);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      letter-spacing: 0.06em;
+      line-height: 1;
+    }
+    .section-link {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px solid var(--gold);
+      padding-bottom: 2px;
+      transition: opacity 0.3s;
+      white-space: nowrap;
+    }
+    .section-link:hover { opacity: 0.65; }
+
+    /* ── PRODUCT GRID ── */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+    }
+
+    .product-card {
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+      group: true;
+    }
+
+    .product-card:first-child {
+      grid-row: span 2;
+    }
+
+    .product-image {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      background: var(--deep);
+    }
+
+    .product-card:first-child .product-image {
+      aspect-ratio: unset;
+      height: 100%;
+      min-height: 600px;
+    }
+
+    .product-card:hover .product-image {
+      transform: scale(1.06);
+    }
+
+    /* placeholder images with pattern */
+    .product-placeholder {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--deep);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    .product-card:first-child .product-placeholder {
+      aspect-ratio: unset;
+      min-height: 600px;
+    }
+    .product-card:hover .product-placeholder {
+      transform: scale(1.04);
+    }
+    .product-placeholder::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(135deg, rgba(201,168,76,0.06) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, transparent, transparent 30px, rgba(201,168,76,0.03) 30px, rgba(201,168,76,0.03) 31px);
+    }
+    .placeholder-icon {
+      font-size: 3rem;
+      opacity: 0.15;
+    }
+
+    .product-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, rgba(8,8,8,0.2) 50%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem;
+    }
+
+    .product-tag-badge {
+      position: absolute;
+      top: 1rem; left: 1rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.3rem 0.7rem;
+      font-weight: 500;
+    }
+
+    .product-name {
+      font-family: var(--font-serif);
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
+      line-height: 1.2;
+    }
+
+    .product-sub {
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .product-price {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      color: var(--gold);
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-add {
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.5);
+      color: var(--white);
+      padding: 0.5rem 1rem;
+      cursor: none;
+      transition: all 0.3s;
+    }
+    .btn-add:hover {
+      background: var(--gold);
+      color: var(--black);
+      border-color: var(--gold);
+    }
+
+    /* card hover reveal */
+    .product-overlay .product-name,
+    .product-overlay .product-sub,
+    .product-overlay .product-footer {
+      transform: translateY(8px);
+      opacity: 0;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+    .product-card:hover .product-overlay .product-name,
+    .product-card:hover .product-overlay .product-sub,
+    .product-card:hover .product-overlay .product-footer {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .product-card:hover .product-overlay .product-sub { transition-delay: 0.05s; }
+    .product-card:hover .product-overlay .product-footer { transition-delay: 0.1s; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+      margin: 0 4rem;
+    }
+
+    /* ── CATEGORIES STRIP ── */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5px;
+      margin: 0;
+    }
+
+    .cat-card {
+      background: var(--surface);
+      padding: 3rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.4s;
+      text-decoration: none;
+      display: block;
+    }
+    .cat-card::before {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transition: transform 0.4s;
+    }
+    .cat-card:hover { background: #1a1a1a; }
+    .cat-card:hover::before { transform: scaleX(1); }
+
+    .cat-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .cat-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      letter-spacing: 0.15em;
+      color: var(--white);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .cat-count {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── PROMO BANNER ── */
+    .promo-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 4rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin: 0 4rem;
+    }
+
+    .promo-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .promo-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      letter-spacing: 0.05em;
+      line-height: 0.95;
+      margin-bottom: 1.5rem;
+    }
+    .promo-text {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .promo-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      border-left: 1px solid var(--border);
+      padding-left: 4rem;
+    }
+
+    .promo-stat {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+    .promo-stat-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      color: var(--gold);
+      line-height: 1;
+      min-width: 80px;
+    }
+    .promo-stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      line-height: 1.6;
+      padding-top: 0.4rem;
+    }
+
+    /* ── NEWSLETTER ── */
+    .newsletter {
+      text-align: center;
+      padding: 6rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .newsletter::before {
+      content: 'MIKESTORE';
+      position: absolute;
+      font-family: var(--font-display);
+      font-size: 18vw;
+      color: rgba(201,168,76,0.03);
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      white-space: nowrap;
+      letter-spacing: 0.1em;
+    }
+    .newsletter-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .newsletter-sub {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+    .newsletter-form {
+      display: flex;
+      gap: 0;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .newsletter-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-right: none;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      padding: 1rem 1.5rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .newsletter-input::placeholder { color: var(--muted); letter-spacing: 0.1em; }
+    .newsletter-input:focus { border-color: var(--gold); }
+    .newsletter-btn {
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      font-family: var(--font-body);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 1rem 1.8rem;
+      cursor: none;
+      transition: background 0.3s;
+    }
+    .newsletter-btn:hover { background: var(--gold-light); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 4rem 2rem;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+    }
+
+    .footer-brand .logo {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      letter-spacing: 0.2em;
+      color: var(--white);
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .footer-brand .logo span { color: var(--gold); }
+    .footer-brand p {
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+      max-width: 260px;
+    }
+    .footer-social {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .social-link {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      transition: all 0.3s;
+    }
+    .social-link:hover { border-color: var(--gold); color: var(--gold); }
+
+    .footer-col h4 {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 0.65rem; }
+    .footer-col ul li a {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+      letter-spacing: 0.05em;
+    }
+    .footer-col ul li a:hover { color: var(--white); }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── ANIMATIONS ON SCROLL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 0 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 0 1.5rem; }
+      .hero-badge { display: none; }
+      .section { padding: 4rem 1.5rem; }
+      .product-grid { grid-template-columns: 1fr 1fr; }
+      .product-card:first-child { grid-column: span 2; }
+      .categories { grid-template-columns: 1fr 1fr; }
+      .promo-banner { grid-template-columns: 1fr; margin: 0 1.5rem; }
+      .promo-right { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 2rem; }
+      footer { grid-template-columns: 1fr 1fr; gap: 2rem; padding: 3rem 1.5rem 2rem; }
+      .footer-brand { grid-column: span 2; }
+      .footer-bottom { padding: 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+      .newsletter { padding: 4rem 1.5rem; }
+      .divider { margin: 0 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="#" class="nav-logo">MIKE<span>STORE</span></a>
+    <ul class="nav-links">
+      <li><a href="#collection">Collection</a></li>
+      <li><a href="#categories">Catégories</a></li>
+      <li><a href="#promo">Promotions</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="#cart" class="nav-cart">Panier (0)</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-line-v"></div>
+    <div class="hero-line-v"></div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">Nouvelle Collection 2025</div>
+      <h1 class="hero-title">
+        WEAR<br/>
+        THE <span class="gold">DARK</span><br/>
+        LUXURY
+      </h1>
+      <p class="hero-subtitle">
+        Des pièces qui parlent avant que tu ouvres la bouche.
+        Élégance. Silence. Puissance.
+      </p>
+      <div class="hero-cta">
+        <a href="#collection" class="btn-primary"><span>Explorer la collection</span></a>
+        <a href="#categories" class="btn-ghost">Voir les catégories</a>
+      </div>
+    </div>
+
+    <div class="hero-badge">
+      <div class="hero-badge-inner">
+        MIKE<br/>STORE<br/>★<br/>2025
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>MIKESTORE</span><span>★</span>
+      <span>DARK LUXURY</span><span>★</span>
+      <span>NOUVELLE COLLECTION</span><span>★</span>
+      <span>LIVRAISON RAPIDE</span><span>★</span>
+      <span>STYLE EXCLUSIF</span><span>★</span>
+      <span>MIKESTORE</span><span>★</span>
+      <span>DARK LUXURY</span><span>★</span>
+      <span>NOUVELLE COLLECTION</span><span>★</span>
+      <span>LIVRAISON RAPIDE</span><span>★</span>
+      <span>STYLE EXCLUSIF</span><span>★</span>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section class="section" id="collection">
+    <div class="section-header reveal">
+      <div>
+        <div class="section-tag">Nouveautés</div>
+        <h2 class="section-title">COLLECTION</h2>
+      </div>
+      <a href="#" class="section-link">Voir tout →</a>
+    </div>
+
+    <div class="product-grid">
+      <!-- Card 1 — Featured -->
+      <div class="product-card reveal">
+        <div class="product-placeholder">
+          <span class="placeholder-icon">🧥</span>
+        </div>
+        <div class="product-overlay">
+          <div class="product-tag-badge">Bestseller</div>
+          <div class="product-name">Oversized Noir Jacket</div>
+          <div class="product-sub">Collection Principale</div>
+          <div class="product-footer">
+            <span class="product-price">HTG 4,500</span>
+            <button class="btn-add">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="product-card reveal">
+        <div class="product-placeholder">
+          <span class="placeholder-icon">👕</span>
+        </div>
+        <div class="product-overlay">
+          <div class="product-tag-badge">New</div>
+          <div class="product-name">Shadow Tee Essential</div>
+          <div class="product-sub">Basics Luxe</div>
+          <div class="product-footer">
+            <span class="product-price">HTG 1,800</span>
+            <button class="btn-add">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="product-card reveal">
+        <div class="product-placeholder">
+          <span class="placeholder-icon">👖</span>
+        </div>
+        <div class="product-overlay">
+          <div class="product-name">Dark Cargo Premium</div>
+          <div class="product-sub">Streetwear Edition</div>
+          <div class="product-footer">
+            <span class="product-price">HTG 3,200</span>
+            <button class="btn-add">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="product-card reveal">
+        <div class="product-placeholder">
+          <span class="placeholder-icon">👟</span>
+        </div>
+        <div class="product-overlay">
+          <div class="product-tag-badge">-20%</div>
+          <div class="product-name">Onyx Sneaker Low</div>
+          <div class="product-sub">Footwear</div>
+          <div class="product-footer">
+            <span class="product-price">HTG 5,600</span>
+            <button class="btn-add">Ajouter</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="product-card reveal">
+        <div class="product-placeholder">
+          <span class="placeholder-icon">🧣</span>
+        </div>
+        <div class="product-overlay">
+          <div class="product-name">Gold Line Hoodie</div>
+          <div class="product-sub">Signature Series</div>
+          <div class="product-footer">
+            <span class="product-price">HTG 2,900</span>
+            <button class="btn-add">Ajouter</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CATEGORIES -->
+  <section class="section" id="categories">
+    <div class="section-header reveal">
+      <div>
+        <div class="section-tag">Explorer</div>
+        <h2 class="section-title">CATÉGORIES</h2>
+      </div>
+    </div>
+
+    <div class="categories">
+      <a href="#" class="cat-card reveal">
+        <span class="cat-icon">🧥</span>
+        <span class="cat-name">VESTES</span>
+        <span class="cat-count">12 pièces</span>
+      </a>
+      <a href="#" class="cat-card reveal">
+        <span class="cat-icon">👕</span>
+        <span class="cat-name">T-SHIRTS</span>
+        <span class="cat-count">24 pièces</span>
+      </a>
+      <a href="#" class="cat-card reveal">
+        <span class="cat-icon">👖</span>
+        <span class="cat-name">PANTALONS</span>
+        <span class="cat-count">18 pièces</span>
+      </a>
+      <a href="#" class="cat-card reveal">
+        <span class="cat-icon">👟</span>
+        <span class="cat-name">SNEAKERS</span>
+        <span class="cat-count">8 pièces</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- PROMO BANNER -->
+  <div class="promo-banner reveal" id="promo">
+    <div>
+      <div class="promo-label">Pourquoi MIKESTORE</div>
+      <h3 class="promo-title">UN STYLE<br/>QUI PARLE<br/>POUR TOI</h3>
+      <p class="promo-text">
+        Chaque pièce est sélectionnée avec intention.
+        Pas du fast fashion — de la mode qui dure,
+        qui marque, qui impose le respect.
+      </p>
+    </div>
+    <div class="promo-right">
+      <div class="promo-stat">
+        <span class="promo-stat-num">500+</span>
+        <span class="promo-stat-label">Clients satisfaits<br/>en Haïti et diaspora</span>
+      </div>
+      <div class="promo-stat">
+        <span class="promo-stat-num">48h</span>
+        <span class="promo-stat-label">Délai de livraison<br/>dans la zone métro</span>
+      </div>
+      <div class="promo-stat">
+        <span class="promo-stat-num">100%</span>
+        <span class="promo-stat-label">Satisfaction garantie<br/>ou remboursé</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter" id="contact">
+    <div class="section-tag" style="justify-content:center; margin-bottom:1rem;">Stay Connected</div>
+    <h2 class="newsletter-title">REJOINS LA LISTE</h2>
+    <p class="newsletter-sub">Accès en avant-première aux nouvelles pièces et offres exclusives.</p>
+    <div class="newsletter-form">
+      <input type="email" class="newsletter-input" placeholder="Ton adresse email" />
+      <button class="newsletter-btn">S'inscrire</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <span class="logo">MIKE<span>STORE</span></span>
+      <p>La mode dark luxury pour ceux qui savent ce qu'ils valent. Basé en Haïti. Livraison partout.</p>
+      <div class="footer-social">
+        <a href="#" class="social-link">TK</a>
+        <a href="#" class="social-link">IG</a>
+        <a href="#" class="social-link">WA</a>
+        <a href="#" class="social-link">SN</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Boutique</h4>
+      <ul>
+        <li><a href="#">Nouveautés</a></li>
+        <li><a href="#">Vestes</a></li>
+        <li><a href="#">T-Shirts</a></li>
+        <li><a href="#">Pantalons</a></li>
+        <li><a href="#">Sneakers</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Infos</h4>
+      <ul>
+        <li><a href="#">À propos</a></li>
+        <li><a href="#">Livraison</a></li>
+        <li><a href="#">Retours</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="#">WhatsApp</a></li>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Email</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div class="footer-bottom">
+    <span>© 2025 MIKESTORE. Tous droits réservés.</span>
+    <span>Made with 🖤 en Haïti</span>
+  </div>
+
+  <script>
+    // ── CURSOR ──
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx - 5 + 'px';
+      cursor.style.top = my - 5 + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx - 18) * 0.12;
+      ry += (my - ry - 18) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, .product-card, .cat-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'scale(2.5)';
+        ring.style.transform = 'scale(1.6)';
+        ring.style.opacity = '0.3';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'scale(1)';
+        ring.style.transform = 'scale(1)';
+        ring.style.opacity = '0.6';
+      });
+    });
+
+    // ── SCROLL REVEAL ──
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+
+    // ── SMOOTH SCROLL ──
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+      });
+    });
+
+    // ── ADD TO CART ──
+    let cartCount = 0;
+    const cartBtn = document.querySelector('.nav-cart');
+    document.querySelectorAll('.btn-add').forEach(btn => {
+      btn.addEventListener('click', () => {
+        cartCount++;
+        cartBtn.textContent = `Panier (${cartCount})`;
+        btn.textContent = '✓ Ajouté';
+        btn.style.background = 'var(--gold)';
+        btn.style.color = 'var(--black)';
+        setTimeout(() => {
+          btn.textContent = 'Ajouter';
+          btn.style.background = '';
+          btn.style.color = '';
+        }, 1500);
+      });
+    });
+  </script>
+</body>
+</html>
