@@ -852,12 +852,12 @@
   </nav>
 
   <!-- HERO -->
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-line-v"></div>
-    <div class="hero-line-v"></div>
-
-    <div class="hero-content">
+  <section class="hero" style="overflow:hidden;">
+    <canvas id="three-canvas" style="position:absolute;inset:0;width:100%;height:100%;z-index:0;"></canvas>
+    <div class="hero-bg" style="z-index:1;"></div>
+    <div class="hero-line-v" style="z-index:1;"></div>
+    <div class="hero-line-v" style="z-index:1;"></div>
+    <div class="hero-content" style="z-index:2;">
       <div class="hero-eyebrow">Nouvelle Collection 2025</div>
       <h1 class="hero-title">
         WEAR<br/>
@@ -873,17 +873,22 @@
         <a href="#categories" class="btn-ghost">Voir les catégories</a>
       </div>
     </div>
-
-    <div class="hero-badge">
-      <div class="hero-badge-inner">
-        MIKE<br/>STORE<br/>★<br/>2025
-      </div>
+    <div class="hero-badge" style="z-index:2;">
+      <div class="hero-badge-inner">MIKE<br/>STORE<br/>★<br/>2025</div>
     </div>
-
-    <div class="hero-scroll">
+    <div class="hero-scroll" style="z-index:2;">
       <div class="scroll-line"></div>
       Scroll
     </div>
+  </section>
+
+  <!-- 3D SHOWCASE -->
+  <section style="background:#0a0a0a;padding:5rem 4rem;position:relative;overflow:hidden;">
+    <div style="text-align:center;margin-bottom:3rem;">
+      <div class="section-tag" style="justify-content:center;margin-bottom:1rem;">Expérience 3D</div>
+      <h2 class="section-title">MANNEQUINS LIVE</h2>
+    </div>
+    <canvas id="showcase-canvas" style="width:100%;height:500px;display:block;border:1px solid rgba(201,168,76,0.15);"></canvas>
   </section>
 
   <!-- MARQUEE -->
@@ -1112,6 +1117,7 @@
     <span>Made with 🖤 en Haïti</span>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     // ── CURSOR ──
     const cursor = document.getElementById('cursor');
@@ -1293,6 +1299,368 @@
         hero.style.opacity = 1 - progress * 1.2;
       }
     });
+
+    // ── THREE.JS HERO SCENE — PARTICLES + MANNEQUIN ──
+    (function() {
+      const canvas = document.getElementById('three-canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
+      renderer.shadowMap.enabled = true;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(60, canvas.offsetWidth / canvas.offsetHeight, 0.1, 100);
+      camera.position.set(0, 1.5, 6);
+
+      // Lights
+      const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+      scene.add(ambient);
+      const gold1 = new THREE.PointLight(0xc9a84c, 3, 12);
+      gold1.position.set(3, 4, 3);
+      scene.add(gold1);
+      const gold2 = new THREE.PointLight(0xc9a84c, 2, 10);
+      gold2.position.set(-3, 2, -2);
+      scene.add(gold2);
+      const white = new THREE.PointLight(0xffffff, 1.5, 8);
+      white.position.set(0, 6, 2);
+      scene.add(white);
+
+      // Materials
+      const goldMat = new THREE.MeshStandardMaterial({ color: 0xc9a84c, metalness: 0.9, roughness: 0.15 });
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.6, roughness: 0.3 });
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, metalness: 0.4, roughness: 0.5 });
+
+      // Build mannequin
+      function buildMannequin(x, z, scale = 1) {
+        const group = new THREE.Group();
+
+        // Body
+        const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.22, 0.7, 8), bodyMat);
+        torso.position.y = 1.0;
+        group.add(torso);
+
+        // Chest accent
+        const chest = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.1), goldMat);
+        chest.position.set(0, 1.2, 0.25);
+        group.add(chest);
+
+        // Head
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 12), darkMat);
+        head.position.y = 1.65;
+        group.add(head);
+
+        // Neck
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, 0.2, 8), bodyMat);
+        neck.position.y = 1.45;
+        group.add(neck);
+
+        // Hips
+        const hips = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.2, 0.35, 8), bodyMat);
+        hips.position.y = 0.55;
+        group.add(hips);
+
+        // Legs
+        [-0.13, 0.13].forEach((xOff, i) => {
+          const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.5, 8), bodyMat);
+          thigh.position.set(xOff, 0.18, 0);
+          group.add(thigh);
+
+          const knee = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), goldMat);
+          knee.position.set(xOff, -0.08, 0);
+          group.add(knee);
+
+          const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.065, 0.45, 8), bodyMat);
+          shin.position.set(xOff, -0.32, 0);
+          group.add(shin);
+
+          const foot = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.2), goldMat);
+          foot.position.set(xOff, -0.56, 0.05);
+          group.add(foot);
+        });
+
+        // Arms
+        [-0.38, 0.38].forEach((xOff, i) => {
+          const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), goldMat);
+          shoulder.position.set(xOff, 1.25, 0);
+          group.add(shoulder);
+
+          const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.4, 8), bodyMat);
+          upper.position.set(xOff * 1.05, 0.98, 0);
+          upper.rotation.z = xOff > 0 ? -0.3 : 0.3;
+          group.add(upper);
+
+          const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), goldMat);
+          elbow.position.set(xOff * 1.1, 0.75, 0);
+          group.add(elbow);
+
+          const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.055, 0.38, 8), bodyMat);
+          lower.position.set(xOff * 1.15, 0.52, 0);
+          lower.rotation.z = xOff > 0 ? -0.15 : 0.15;
+          group.add(lower);
+        });
+
+        // Gold ring base
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.03, 8, 32), goldMat);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = -0.58;
+        group.add(ring);
+
+        group.position.set(x, -0.5, z);
+        group.scale.setScalar(scale);
+        scene.add(group);
+        return group;
+      }
+
+      const mannequin1 = buildMannequin(-2, 0, 1);
+      const mannequin2 = buildMannequin(2, -1, 0.9);
+      const mannequin3 = buildMannequin(0, -2, 0.85);
+
+      // Podium
+      const podium = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.15, 32), goldMat);
+      podium.position.set(0, -1.1, 0);
+      scene.add(podium);
+
+      // Floor reflection
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x080808, metalness: 0.8, roughness: 0.2 }));
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -1.12;
+      scene.add(floor);
+
+      // Gold particles
+      const particleCount = 300;
+      const positions = new Float32Array(particleCount * 3);
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 14;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 8;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      }
+      const particleGeo = new THREE.BufferGeometry();
+      particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const particles = new THREE.Points(particleGeo, new THREE.PointsMaterial({ color: 0xc9a84c, size: 0.04, transparent: true, opacity: 0.7 }));
+      scene.add(particles);
+
+      // Floating gold rings
+      const rings = [];
+      for (let i = 0; i < 3; i++) {
+        const r = new THREE.Mesh(new THREE.TorusGeometry(0.6 + i * 0.3, 0.015, 8, 64), new THREE.MeshStandardMaterial({ color: 0xc9a84c, metalness: 1, roughness: 0 }));
+        r.position.set(-2 + i * 2, 0.5, -1);
+        scene.add(r);
+        rings.push(r);
+      }
+
+      // Mouse parallax
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', e => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      let t = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        t += 0.008;
+
+        // Camera cinematic movement
+        camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.04;
+        camera.position.y += (-mouseY * 0.8 + 1.5 - camera.position.y) * 0.04;
+        camera.lookAt(0, 0.5, 0);
+
+        // Mannequin animations
+        mannequin1.rotation.y = Math.sin(t * 0.6) * 0.4;
+        mannequin1.position.y = -0.5 + Math.sin(t * 0.8) * 0.06;
+        mannequin2.rotation.y = Math.sin(t * 0.5 + 1) * 0.35;
+        mannequin2.position.y = -0.5 + Math.sin(t * 0.7 + 1) * 0.05;
+        mannequin3.rotation.y = t * 0.4;
+        mannequin3.position.y = -0.5 + Math.sin(t * 0.9 + 2) * 0.04;
+
+        // Rings float
+        rings.forEach((r, i) => {
+          r.rotation.x = t * (0.5 + i * 0.2);
+          r.rotation.z = t * (0.3 + i * 0.15);
+          r.position.y = 0.5 + Math.sin(t + i * 1.2) * 0.3;
+        });
+
+        // Particles drift
+        particles.rotation.y = t * 0.05;
+        particles.rotation.x = Math.sin(t * 0.1) * 0.1;
+
+        // Lights orbit
+        gold1.position.x = Math.sin(t * 0.7) * 4;
+        gold1.position.z = Math.cos(t * 0.7) * 4;
+        gold2.position.x = Math.sin(t * 0.5 + Math.PI) * 3;
+        gold2.position.z = Math.cos(t * 0.5 + Math.PI) * 3;
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        const hero = document.querySelector('.hero');
+        renderer.setSize(hero.offsetWidth, hero.offsetHeight);
+        camera.aspect = hero.offsetWidth / hero.offsetHeight;
+        camera.updateProjectionMatrix();
+      });
+    })();
+
+    // ── THREE.JS SHOWCASE — MANNEQUINS DÉFILÉ ──
+    (function() {
+      const canvas = document.getElementById('showcase-canvas');
+      const W = canvas.offsetWidth, H = 500;
+      canvas.width = W; canvas.height = H;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.setSize(W, H);
+      renderer.shadowMap.enabled = true;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
+      camera.position.set(0, 1, 8);
+      camera.lookAt(0, 0.5, 0);
+
+      // Lighting
+      scene.add(new THREE.AmbientLight(0xffffff, 0.15));
+      const spot1 = new THREE.SpotLight(0xc9a84c, 5, 20, Math.PI / 6, 0.3);
+      spot1.position.set(-3, 6, 3);
+      scene.add(spot1);
+      const spot2 = new THREE.SpotLight(0xffffff, 3, 20, Math.PI / 8, 0.2);
+      spot2.position.set(3, 5, 3);
+      scene.add(spot2);
+      const spot3 = new THREE.SpotLight(0xc9a84c, 4, 15, Math.PI / 5, 0.4);
+      spot3.position.set(0, 8, 0);
+      scene.add(spot3);
+
+      const goldM = new THREE.MeshStandardMaterial({ color: 0xc9a84c, metalness: 1, roughness: 0.1 });
+      const darkM = new THREE.MeshStandardMaterial({ color: 0x0d0d0d, metalness: 0.5, roughness: 0.4 });
+      const bodyM = new THREE.MeshStandardMaterial({ color: 0x1c1c1c, metalness: 0.3, roughness: 0.6 });
+
+      function buildShowMannequin(x) {
+        const g = new THREE.Group();
+
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), darkM);
+        head.position.y = 1.8;
+        g.add(head);
+
+        const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.11, 0.22, 8), bodyM);
+        neck.position.y = 1.55;
+        g.add(neck);
+
+        const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.25, 0.75, 8), bodyM);
+        torso.position.y = 1.05;
+        g.add(torso);
+
+        // Clothing accent lines
+        for (let i = 0; i < 3; i++) {
+          const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.03, 0.05), goldM);
+          stripe.position.set(0, 0.85 + i * 0.2, 0.3);
+          g.add(stripe);
+        }
+
+        const hips = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.23, 0.38, 8), bodyM);
+        hips.position.y = 0.57;
+        g.add(hips);
+
+        [-0.14, 0.14].forEach(xO => {
+          const thigh = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.1, 0.52, 8), bodyM);
+          thigh.position.set(xO, 0.2, 0);
+          g.add(thigh);
+
+          const shin = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.07, 0.48, 8), bodyM);
+          shin.position.set(xO, -0.32, 0);
+          g.add(shin);
+
+          const foot = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.07, 0.22), goldM);
+          foot.position.set(xO, -0.6, 0.05);
+          g.add(foot);
+
+          const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), goldM);
+          shoulder.position.set(xO * 2.5, 1.3, 0);
+          g.add(shoulder);
+
+          const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.065, 0.72, 8), bodyM);
+          arm.position.set(xO * 2.6, 0.88, 0);
+          arm.rotation.z = xO > 0 ? -0.25 : 0.25;
+          g.add(arm);
+        });
+
+        // Podium
+        const pod = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.45, 0.12, 32), goldM);
+        pod.position.y = -0.65;
+        g.add(pod);
+
+        g.position.set(x, -0.5, 0);
+        scene.add(g);
+        return g;
+      }
+
+      const m1 = buildShowMannequin(-3);
+      const m2 = buildShowMannequin(0);
+      const m3 = buildShowMannequin(3);
+
+      // Runway floor
+      const runway = new THREE.Mesh(
+        new THREE.PlaneGeometry(12, 6),
+        new THREE.MeshStandardMaterial({ color: 0x080808, metalness: 0.9, roughness: 0.15 })
+      );
+      runway.rotation.x = -Math.PI / 2;
+      runway.position.y = -1.1;
+      scene.add(runway);
+
+      // Gold line on runway
+      const line = new THREE.Mesh(new THREE.PlaneGeometry(12, 0.03), new THREE.MeshStandardMaterial({ color: 0xc9a84c, metalness: 1 }));
+      line.rotation.x = -Math.PI / 2;
+      line.position.set(0, -1.09, 0);
+      scene.add(line);
+
+      // Particles
+      const pCount = 200;
+      const pPos = new Float32Array(pCount * 3);
+      for (let i = 0; i < pCount; i++) {
+        pPos[i*3] = (Math.random()-0.5)*14;
+        pPos[i*3+1] = Math.random()*5;
+        pPos[i*3+2] = (Math.random()-0.5)*6;
+      }
+      const pGeo = new THREE.BufferGeometry();
+      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+      const dust = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xc9a84c, size: 0.05, transparent: true, opacity: 0.5 }));
+      scene.add(dust);
+
+      let t = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        t += 0.01;
+
+        // Catwalk pose animations
+        m1.rotation.y = Math.sin(t * 0.5) * 0.5;
+        m1.children[0].rotation.z = Math.sin(t * 1.2) * 0.05; // head bob
+
+        m2.rotation.y = Math.sin(t * 0.4 + 1) * 0.6;
+        m2.position.y = -0.5 + Math.abs(Math.sin(t * 0.6)) * 0.08;
+
+        m3.rotation.y = Math.sin(t * 0.55 + 2) * 0.45;
+        m3.children[0].rotation.z = Math.sin(t * 1.0 + 1) * 0.04;
+
+        // Spotlight sweep
+        spot1.position.x = Math.sin(t * 0.5) * 5;
+        spot3.position.x = Math.sin(t * 0.4 + Math.PI) * 4;
+
+        dust.rotation.y = t * 0.02;
+
+        // Camera slow dolly
+        camera.position.x = Math.sin(t * 0.15) * 1.5;
+        camera.lookAt(0, 0.5, 0);
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        const newW = canvas.offsetWidth;
+        renderer.setSize(newW, 500);
+        camera.aspect = newW / 500;
+        camera.updateProjectionMatrix();
+      });
+    })();
 
   </script>
 </body>
